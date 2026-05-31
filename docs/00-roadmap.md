@@ -1,91 +1,91 @@
-# Roadmap
+# 学习路线
 
-This repository is developed as a long-term C++ server-side learning project. Each stage should include requirements, design, implementation, tests, benchmark data, and review notes.
+本仓库作为长期 C++ 服务端学习项目维护。每个阶段都应包含需求分析、架构设计、代码实现、测试验证、压测记录和阶段复盘。
 
-## Stage 1: MiniMuduo + WebServer
+## 第一阶段：MiniMuduo + WebServer
 
-Goal: implement a muduo-inspired Reactor network library and build an HTTP WebServer on top of it.
+目标：实现一个 muduo 风格的简化版 Reactor 网络库，并基于它开发 HTTP WebServer。
 
-Main topics:
+核心内容：
 
-- Linux non-blocking network programming
-- epoll LT first, ET as a configurable extension
-- Reactor and one-loop-per-thread
-- Channel, Poller, EventLoop, Acceptor, TcpConnection, TcpServer
-- Buffer and connection lifetime
-- TimerQueue and timeout handling
-- HTTP request parsing and static response
-- CMake, tests, benchmark, sanitizer, and review
+- Linux 非阻塞网络编程
+- epoll 默认 LT，后续支持 ET 配置切换
+- Reactor 与 one loop per thread
+- Channel、Poller、EventLoop、Acceptor、TcpConnection、TcpServer
+- Buffer 与连接生命周期管理
+- TimerQueue 与超时处理
+- HTTP 请求解析和静态响应
+- CMake、测试、压测、Sanitizer 和阶段复盘
 
-Milestones:
+里程碑：
 
-1. Project baseline: CMake, docs, scripts, Git.
-2. Base utilities: noncopyable, Timestamp, Logger.
-3. Event loop baseline: EventLoop, Channel, Poller, EpollPoller.
-4. TCP baseline: Socket, InetAddress, Acceptor, TcpConnection.
-5. Echo server: single-thread runnable server.
-6. Buffer and write path: handle partial read/write.
-7. Multi-thread Reactor: EventLoopThread and EventLoopThreadPool.
-8. TimerQueue: timeout and scheduled task support.
-9. HTTP server: parse request and send response.
-10. Testing, benchmark, review, and README polish.
+1. 项目基线：CMake、文档、脚本、Git。
+2. 基础工具：noncopyable、Timestamp、Logger。
+3. 事件循环基线：EventLoop、Channel、Poller、EpollPoller。
+4. TCP 基线：Socket、InetAddress、Acceptor、TcpConnection。
+5. Echo Server：先完成单线程可运行版本。
+6. Buffer 与写路径：处理半包、粘包和部分写。
+7. 多线程 Reactor：EventLoopThread 与 EventLoopThreadPool。
+8. TimerQueue：支持超时和定时任务。
+9. HTTP Server：解析请求并返回响应。
+10. 测试、压测、复盘和 README 完善。
 
-## Stage 2: WebSocket Long-Connection Server
+## 第二阶段：WebSocket 长连接服务器
 
-Goal: build long-connection service capability on top of the network layer.
+目标：基于第一阶段网络层，构建长连接服务能力。
 
-Topics:
+核心内容：
 
-- WebSocket handshake and frame codec
-- heartbeat and timeout
-- rooms and broadcast
-- single chat and group chat
-- reconnect and ACK
-- basic authentication
+- WebSocket 握手与帧编解码
+- 心跳与超时
+- 房间与广播
+- 单聊与群聊
+- 断线重连与 ACK
+- 简单鉴权
 
-## Stage 3: KV Store
+## 第三阶段：KV Store
 
-Goal: build a simple Redis-like in-memory KV service.
+目标：实现一个类 Redis 的内存 KV 服务。
 
-Topics:
+核心内容：
 
-- TCP protocol design
-- GET, SET, DEL, EXPIRE
-- TTL and TimerQueue reuse
-- persistence snapshot or append-only log
-- simple LRU
-- slow query log
+- TCP 协议设计
+- GET、SET、DEL、EXPIRE
+- TTL 与 TimerQueue 复用
+- 快照或追加日志持久化
+- 简单 LRU
+- 慢查询日志
 
-## Stage 4: Message Queue
+## 第四阶段：消息队列
 
-Goal: build a simple topic-based message queue.
+目标：实现一个简单的 topic 型消息队列。
 
-Topics:
+核心内容：
 
-- producer and consumer
-- ACK and retry
-- dead letter queue
-- sequential consumption
-- persistence log
-- consumer group basics
+- producer 与 consumer
+- ACK 与重试
+- 死信队列
+- 顺序消费
+- 持久化日志
+- consumer group 基础
 
-## Stage 5: RPC Framework
+## 第五阶段：RPC 框架
 
-Goal: build service-to-service communication capability.
+目标：补齐服务间通信能力。
 
-Topics:
+核心内容：
 
-- codec and request id
-- timeout and error code
-- sync and async call
-- service registry
-- simple load balancing
+- 编解码与 request id
+- 超时与错误码
+- 同步调用与异步调用
+- 服务注册
+- 简单负载均衡
 
-## Later Experiments
+## 后续实验
 
-- C++20 coroutine-based async API
-- ET and LT benchmark comparison
-- lock-free queue evaluation
-- Boost.Asio cross-platform prototype
-- Seastar reading notes
+- C++20 协程异步 API
+- ET 与 LT 行为和性能对比
+- lock-free 队列评估
+- Boost.Asio 跨平台原型
+- Seastar 阅读笔记
 

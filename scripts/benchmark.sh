@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Benchmark scripts will be added after the HTTP WebServer milestone is runnable."
-
+echo "HTTP WebServer 里程碑可运行后再补充压测脚本。"

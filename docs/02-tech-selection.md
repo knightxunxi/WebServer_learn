@@ -1,84 +1,84 @@
-# Tech Selection
+# 技术选型
 
-## C++ Standard
+## C++ 标准
 
-Use C++20.
+使用 C++20。
 
-Reasons:
+选择原因：
 
-- modern standard library features are useful for new code
-- `std::jthread`, `std::stop_token`, `std::span`, and improved chrono are valuable
-- C++20 is acceptable for a learning and GitHub demonstration repository
+- 新项目可以使用更现代的标准库能力。
+- `std::jthread`、`std::stop_token`、`std::span` 和 chrono 改进有实际价值。
+- C++20 适合作为学习型和 GitHub 展示型项目的基线。
 
-Coroutine decision:
+协程决策：
 
-- do not use coroutine as the Stage 1 main path
-- keep callback-style Reactor as the core model
-- add coroutine API later as an experiment after the lifecycle model is clear
+- 第一阶段主路径不使用协程。
+- 核心网络模型保持 callback-style Reactor。
+- 在连接生命周期、事件循环和回调模型清晰后，再单独加入协程实验模块。
 
-## Platform
+## 平台选择
 
-Stage 1 is Linux only.
+第一阶段只支持 Linux。
 
-Reasons:
+选择原因：
 
-- Linux is the primary environment for C++ server-side infrastructure
-- epoll, fd lifecycle, non-blocking IO, and event-driven design should be learned directly
-- cross-platform abstraction can be evaluated later with Boost.Asio
+- Linux 是 C++ 服务端和基础架构方向的主要运行环境。
+- epoll、fd 生命周期、非阻塞 IO 和事件驱动模型需要直接学习。
+- 跨平台抽象可以在后续通过 Boost.Asio 单独评估。
 
-## IO Backend
+## IO 后端
 
-Use epoll.
+使用 epoll。
 
-Default mode:
+默认模式：
 
-- LT with non-blocking fd
+- LT + 非阻塞 fd
 
-Reserved extension:
+预留扩展：
 
-- ET configurable mode
+- ET 配置模式
 
-Rationale:
+取舍说明：
 
-- LT is easier to validate in the first stable implementation
-- ET is useful for deeper study, but requires strict read/write loops until `EAGAIN`
-- supporting both modes later enables benchmark and behavior comparison
+- LT 更适合第一版稳定验证。
+- ET 有学习价值，但必须严格处理读写循环直到 `EAGAIN`。
+- 后续同时支持 LT/ET，可以进行行为和压测对比。
 
-## Concurrency Model
+## 并发模型
 
-Use one loop per thread.
+使用 one loop per thread。
 
-Planned model:
+计划模型：
 
-- main loop accepts new connections
-- sub loops handle established connection IO
-- each `EventLoop` belongs to one thread
-- cross-thread task submission uses pending functor queue plus eventfd wakeup
+- main loop 负责接收新连接。
+- sub loop 负责已建立连接的 IO。
+- 每个 `EventLoop` 只属于一个线程。
+- 跨线程任务投递使用 pending functor queue + eventfd 唤醒。
 
-## Third-Party Dependencies
+## 第三方依赖
 
-Stage 1 keeps dependencies minimal.
+第一阶段尽量保持依赖最小化。
 
-Allowed:
+允许：
 
 - CMake
-- system Linux APIs
-- optional GoogleTest later if manual tests become hard to maintain
+- Linux 系统 API
+- 后续可选 GoogleTest
 
-Avoid in Stage 1:
+第一阶段暂不引入：
 
 - Boost.Asio
 - spdlog
 - fmt
-- full-featured HTTP parser library
+- 完整 HTTP parser 库
 
-## Testing Tools
+## 测试工具
 
-Planned:
+计划使用：
 
-- CTest for baseline test execution
-- curl, nc, telnet for manual checks
-- wrk or ab for benchmark
-- ASan, UBSan, Valgrind for memory and undefined behavior checks
-- gdb, strace, lsof, perf for debugging and profiling
+- CTest：基础测试执行。
+- curl、nc、telnet：手动网络行为验证。
+- wrk 或 ab：压测。
+- ASan、UBSan、Valgrind：内存和未定义行为检查。
+- gdb、strace、lsof、perf：调试和性能分析。
 

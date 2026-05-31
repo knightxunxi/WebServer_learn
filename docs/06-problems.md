@@ -1,20 +1,20 @@
-# Problems
+# 问题记录
 
-Record bugs, unclear concepts, debugging notes, and final conclusions here.
+这里记录 bug、理解卡点、调试过程和最终结论。
 
-## Template
+## 模板
 
 ```text
-## YYYY-MM-DD: Short title
+## YYYY-MM-DD：简短标题
 
-Context:
+背景：
 
-Symptom:
+现象：
 
-Cause:
+原因：
 
-Fix:
+修复：
 
-How to prevent:
+如何预防：
 ```
 

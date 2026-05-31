@@ -1,8 +1,8 @@
-# Benchmark
+# 压测记录
 
-Benchmark data will be recorded after runnable network milestones exist.
+在网络模块达到可运行里程碑后，再记录压测数据。
 
-## Planned Tools
+## 计划工具
 
 - `wrk`
 - `ab`
@@ -10,28 +10,28 @@ Benchmark data will be recorded after runnable network milestones exist.
 - `top`
 - `pidstat`
 
-## Metrics
+## 指标
 
 - QPS
-- average latency
-- p95 latency
-- CPU usage
-- memory usage
-- fd count
-- error rate
+- 平均延迟
+- p95 延迟
+- CPU 使用率
+- 内存使用
+- fd 数量
+- 错误率
 
-## Template
+## 模板
 
 ```text
-## YYYY-MM-DD: Milestone name
+## YYYY-MM-DD：里程碑名称
 
-Commit:
-Build type:
-Machine:
-Command:
+提交：
+构建类型：
+机器环境：
+命令：
 
-Result:
+结果：
 
-Observation:
+观察：
 ```
 

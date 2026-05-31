@@ -1,26 +1,37 @@
-# Development Log
+# 开发日志
 
 ## 2026-05-31
 
-Initial repository planning and scaffold.
+初始化仓库规划和工程骨架。
 
-Decisions:
+已确定：
 
-- Repository is organized as a long-term C++ server-side learning project.
-- Stage 1 is `MiniMuduo + WebServer`.
-- Use C++20.
-- Use Linux epoll as the first backend.
-- Default trigger mode is LT.
-- ET is reserved as a configurable extension.
-- Callback-style Reactor is the main Stage 1 model.
-- Coroutine is reserved for later experiments.
-- Documentation will be updated during development instead of written only at the end.
+- 仓库定位为长期 C++ 服务端学习项目。
+- 第一阶段为 `MiniMuduo + WebServer`。
+- 使用 C++20。
+- 第一阶段使用 Linux epoll。
+- 默认触发模式为 LT。
+- ET 作为后续可配置扩展。
+- 第一阶段主线使用 callback-style Reactor。
+- 协程作为后续实验模块。
+- 文档在开发过程中持续更新，不等到项目结束后补写。
 
-Created baseline:
+已创建：
 
 - README
-- docs for roadmap, requirement, tech selection, architecture, module design, testing, workflow
-- CMake baseline
-- smoke app and smoke test
-- scripts for build and test
+- 学习路线、需求分析、技术选型、架构设计、模块设计、测试方案、工作流文档
+- CMake 基线
+- smoke app 和 smoke test
+- 构建和测试脚本
+
+## 2026-05-31
+
+统一文档和注释语言。
+
+已确定：
+
+- README 与 `docs/` 文档使用中文。
+- 后续必要代码注释使用中文。
+- 注释重点解释设计意图、生命周期、并发边界和容易踩坑的位置。
+- 不为显而易见的代码添加无意义注释。
 

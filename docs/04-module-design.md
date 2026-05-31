@@ -1,127 +1,127 @@
-# Module Design
+# 模块设计
 
-This document records target responsibilities before implementation. Details may change as the code becomes concrete.
+本文记录实现前的目标职责。具体细节会随着代码推进持续修正。
 
 ## base
 
 `noncopyable`
 
-- disable copy construction and copy assignment
-- used by objects with ownership or thread affinity
+- 禁止拷贝构造和拷贝赋值。
+- 用于具备所有权、线程归属或资源管理语义的对象。
 
 `Timestamp`
 
-- represent time points
-- support timer and log output
+- 表示时间点。
+- 用于定时器和日志输出。
 
 `Logger`
 
-- provide simple log macros or stream-style logging
-- keep implementation small in Stage 1
+- 提供简单日志宏或流式日志接口。
+- 第一阶段保持小实现，不追求生产级能力。
 
 ## net
 
 `EventLoop`
 
-- owns the event loop of one thread
-- calls `Poller::poll`
-- dispatches active `Channel` callbacks
-- supports run-in-loop and queue-in-loop
-- uses eventfd to wake up from another thread
+- 拥有一个线程内的事件循环。
+- 调用 `Poller::poll`。
+- 分发活跃 `Channel` 的回调。
+- 支持 run-in-loop 和 queue-in-loop。
+- 通过 eventfd 支持跨线程唤醒。
 
 `Channel`
 
-- binds one fd to event callbacks
-- stores interested events and returned events
-- does not own fd
+- 将一个 fd 与事件回调绑定。
+- 保存感兴趣事件和实际返回事件。
+- 不拥有 fd。
 
 `Poller`
 
-- abstract IO multiplexing interface
-- supports update and remove channel
+- IO 多路复用抽象接口。
+- 支持更新和移除 Channel。
 
 `EpollPoller`
 
-- Linux epoll implementation of `Poller`
-- owns epoll fd
-- translates epoll events to active channels
+- `Poller` 的 Linux epoll 实现。
+- 拥有 epoll fd。
+- 将 epoll 事件转换为活跃 Channel 列表。
 
 `InetAddress`
 
-- wraps IPv4 address and port
+- 封装 IPv4 地址和端口。
 
 `Socket`
 
-- wraps socket fd operations
-- bind, listen, accept, shutdown write, set non-blocking, reuse address
+- 封装 socket fd 操作。
+- 提供 bind、listen、accept、shutdown write、set non-blocking、reuse address 等能力。
 
 `Acceptor`
 
-- owns listening socket and accept channel
-- accepts new connections
-- invokes new connection callback
+- 拥有监听 socket 和 accept channel。
+- 接收新连接。
+- 触发 new connection callback。
 
 `Buffer`
 
-- stores input and output bytes
-- handles append, retrieve, readable, writable, and expansion
+- 保存输入和输出字节。
+- 支持 append、retrieve、readable、writable 和自动扩容。
 
 `TcpConnection`
 
-- represents an established TCP connection
-- owns connection state, channel, input buffer, and output buffer
-- manages read, write, close, error, and shutdown behavior
+- 表示一个已建立 TCP 连接。
+- 管理连接状态、Channel、input buffer 和 output buffer。
+- 处理读、写、关闭、错误和半关闭。
 
 `TcpServer`
 
-- owns Acceptor and connection map
-- distributes connections to EventLoopThreadPool
-- exposes callbacks for connection and message handling
+- 拥有 Acceptor 和连接表。
+- 将连接分发给 EventLoopThreadPool。
+- 对外暴露连接回调和消息回调。
 
 `EventLoopThread`
 
-- starts one thread with one EventLoop
-- returns EventLoop pointer after initialization
+- 启动一个线程和一个 EventLoop。
+- 在线程初始化完成后返回 EventLoop 指针。
 
 `EventLoopThreadPool`
 
-- manages multiple EventLoopThread instances
-- selects next loop for a new connection
+- 管理多个 EventLoopThread。
+- 为新连接选择下一个 EventLoop。
 
 ## timer
 
 `Timer`
 
-- stores expiration time, callback, interval, and repeat flag
+- 保存过期时间、回调、间隔和是否重复。
 
 `TimerId`
 
-- lightweight handle for canceling timers
+- 作为取消定时器的轻量句柄。
 
 `TimerQueue`
 
-- manages timers for an EventLoop
-- wakes loop when next timeout is ready
-- supports one-shot and repeated timers
+- 管理某个 EventLoop 内的定时器。
+- 在最近超时时间到达时唤醒 loop。
+- 支持一次性定时器和重复定时器。
 
 ## http
 
 `HttpRequest`
 
-- stores method, path, version, headers, and body
+- 保存 method、path、version、headers 和 body。
 
 `HttpResponse`
 
-- stores status code, headers, body, keep-alive flag
-- serializes response to Buffer
+- 保存状态码、headers、body 和 keep-alive 标记。
+- 将响应序列化到 Buffer。
 
 `HttpContext`
 
-- stores parser state for one connection
-- supports incomplete request parsing
+- 保存单个连接上的 HTTP 解析状态。
+- 支持不完整请求解析。
 
 `HttpServer`
 
-- builds on `TcpServer`
-- handles request callback and response writing
+- 构建在 `TcpServer` 之上。
+- 处理请求回调和响应写回。
 

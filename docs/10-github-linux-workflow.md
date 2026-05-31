@@ -1,72 +1,72 @@
-# GitHub and Linux Workflow
+# GitHub 与 Linux 工作流
 
-This project is developed on the local workspace and should be easy to clone and run on a Linux virtual machine.
+本项目在本地工作区开发，同时需要方便上传到 GitHub，并在 Linux 虚拟机中 clone、构建和运行。
 
-## First Push to GitHub
+## 首次推送到 GitHub
 
-Create an empty repository on GitHub, then run:
+在 GitHub 创建空仓库后执行：
 
 ```bash
 git remote add origin git@github.com:<user>/<repo>.git
 git push -u origin main
 ```
 
-If HTTPS is preferred:
+如果使用 HTTPS：
 
 ```bash
 git remote add origin https://github.com/<user>/<repo>.git
 git push -u origin main
 ```
 
-## Clone on Linux
+## 在 Linux 中克隆
 
 ```bash
 git clone git@github.com:<user>/<repo>.git
 cd <repo>
 ```
 
-## Install Basic Dependencies
+## 安装基础依赖
 
-Ubuntu example:
+Ubuntu 示例：
 
 ```bash
 sudo apt update
 sudo apt install -y build-essential cmake git
 ```
 
-Optional tools:
+可选工具：
 
 ```bash
 sudo apt install -y gdb valgrind wrk apache2-utils linux-tools-common
 ```
 
-## Build and Test
+## 构建和测试
 
 ```bash
 bash scripts/build.sh
 bash scripts/test.sh
 ```
 
-## Suggested Branch Workflow
+## 建议分支流程
 
 ```text
 main
-  stable learning milestones
+  稳定学习里程碑
 
 feature/<module-name>
-  one module or one milestone
+  一个模块或一个里程碑
 
 docs/<topic>
-  documentation-only updates
+  只修改文档
 ```
 
-Suggested commit style:
+建议提交格式：
 
 ```text
-docs: initialize stage 1 roadmap
-build: add cmake baseline
-net: add event loop
-test: add buffer tests
-bench: record webserver wrk result
+docs: 初始化第一阶段路线
+build: 添加 cmake 基线
+net: 添加 event loop
+test: 添加 buffer 测试
+bench: 记录 webserver wrk 压测结果
 ```
 

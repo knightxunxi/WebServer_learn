@@ -1,24 +1,24 @@
-# Review
+# 阶段复盘
 
-Stage review notes will be written after each milestone or stage.
+每个里程碑或阶段结束后，在这里补充复盘记录。
 
-## Stage 1 Review Template
+## 第一阶段复盘模板
 
 ```text
-## MiniMuduo + WebServer Review
+## MiniMuduo + WebServer 复盘
 
-What was completed:
+完成内容：
 
-What was not completed:
+未完成内容：
 
-Most important design decisions:
+最重要的设计决策：
 
-Most difficult bugs:
+最困难的问题：
 
-Testing and benchmark summary:
+测试和压测总结：
 
-What should be improved:
+后续需要改进：
 
-What can be reused in the next stage:
+能复用到下一阶段的内容：
 ```
 

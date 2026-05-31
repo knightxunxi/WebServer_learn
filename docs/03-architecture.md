@@ -1,8 +1,8 @@
-# Architecture
+# 架构设计
 
-Stage 1 follows a muduo-inspired Reactor architecture while keeping implementation scope small enough for learning.
+第一阶段采用 muduo 风格 Reactor 架构，但实现范围控制在适合学习和维护的规模内。
 
-## Layering
+## 分层结构
 
 ```text
 apps
@@ -17,14 +17,14 @@ base
   Logger / Timestamp / noncopyable
 ```
 
-## Main Runtime Model
+## 主运行模型
 
 ```text
 main thread
   EventLoop
     Acceptor
-      accept new connection
-      assign connection to sub EventLoop
+      accept 新连接
+      将连接分配给 sub EventLoop
 
 worker thread N
   EventLoop
@@ -36,45 +36,45 @@ worker thread N
       close
 ```
 
-## Important Ownership Rules
+## 重要所有权规则
 
-- `EventLoop` belongs to exactly one thread.
-- `Channel` does not own fd. It only stores fd event interests and callbacks.
-- `Poller` owns the epoll instance and active event collection.
-- `TcpConnection` owns the connection lifecycle abstraction.
-- `Socket` wraps fd operations and closes fd through RAII where appropriate.
-- `Buffer` owns read/write memory and hides partial read/write details.
-- `TimerQueue` is reusable by HTTP timeout, WebSocket heartbeat, KV TTL, and MQ delay tasks.
+- `EventLoop` 只属于一个线程。
+- `Channel` 不拥有 fd，只保存 fd 的事件兴趣和回调。
+- `Poller` 拥有 epoll 实例，并负责收集活跃事件。
+- `TcpConnection` 负责连接生命周期抽象。
+- `Socket` 封装 fd 操作，并在合适位置通过 RAII 关闭 fd。
+- `Buffer` 管理读写内存，隐藏半包、粘包和部分写细节。
+- `TimerQueue` 可被 HTTP 超时、WebSocket 心跳、KV TTL 和 MQ 延迟任务复用。
 
-## Connection Lifecycle
+## 连接生命周期
 
-Initial target lifecycle:
+第一阶段目标生命周期：
 
 ```text
 accept
-  -> set non-blocking
-  -> create TcpConnection
-  -> register read event
-  -> read data into Buffer
-  -> call message callback
-  -> write response or queue output
-  -> handle peer close / error / timeout
-  -> remove Channel
-  -> destroy TcpConnection
+  -> 设置非阻塞
+  -> 创建 TcpConnection
+  -> 注册读事件
+  -> 读取数据到 Buffer
+  -> 调用 message callback
+  -> 写响应或暂存到 output buffer
+  -> 处理对端关闭 / 错误 / 超时
+  -> 移除 Channel
+  -> 销毁 TcpConnection
 ```
 
-## Trigger Mode Strategy
+## 触发模式策略
 
-The architecture should allow:
+架构上预留：
 
 ```text
 TriggerMode::Level
 TriggerMode::Edge
 ```
 
-LT is implemented and stabilized first. ET is added after read/write behavior, error handling, and tests are stable.
+先实现并稳定 LT。等读写路径、错误处理和测试足够稳定后，再加入 ET。
 
-## Coroutine Position
+## 协程定位
 
-Coroutine is not part of the first-stage core architecture. A later experiment may wrap callback-based async operations with `co_await`, but it should not disturb the Reactor baseline.
+协程不属于第一阶段核心架构。后续可以用实验模块包装 callback 异步操作，探索 `co_await` 风格 API，但不应影响 Reactor 基线。
 
