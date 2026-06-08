@@ -7,7 +7,14 @@
 #include "csl/net/EventLoop.h"
 #include "csl/net/Channel.h"
 
+#include <algorithm>
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <cstdlib>
+#include <functional>
+#include <iterator>
 #include <sys/timerfd.h>
 #include <unistd.h>
 #include <atomic>
@@ -138,6 +145,10 @@ bool TimerQueue::insert(Timer* timer) {
 
 void TimerQueue::cancelInLoop(TimerId timerId) {
     loop_->assertInLoopThread();
+
+    if (!timerId.timer_) {
+        return;
+    }
 
     auto it = timers_.find(Entry(timerId.timer_->expiration(),
                                  timerId.timer_));

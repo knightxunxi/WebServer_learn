@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <sstream>
 #include <unistd.h>
@@ -95,12 +96,19 @@ void EpollPoller::updateChannel(Channel* channel) {
     if (index == -1 || index == 2) {
         // 新建 Channel 或之前被移除过
         int fd = channel->fd();
+        if (channel->isNoneEvent()) {
+            // 已经没有任何监听事件时，不应重新 ADD 到 epoll。
+            // 典型场景：Channel 已 DEL 后再次调用 disableAll()。
+            return;
+        }
         if (index == -1) {
             // 新 Channel：加入映射
             assert(channels_.find(fd) == channels_.end());
             channels_[fd] = channel;
+        } else {
+            assert(channels_.find(fd) != channels_.end());
+            assert(channels_[fd] == channel);
         }
-        // 否则之前是 kDeleted（index==2），已从映射中移除但还未重建
 
         channel->set_index(1);  // kAdded
         update(EPOLL_CTL_ADD, channel);

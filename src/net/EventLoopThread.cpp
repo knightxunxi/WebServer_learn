@@ -4,6 +4,8 @@
 #include "csl/net/EventLoopThread.h"
 #include "csl/net/EventLoop.h"
 
+#include <cassert>
+
 namespace csl {
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
@@ -12,15 +14,16 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
     , exiting_(false)
     , callback_(cb)
 {
+    (void)name;
 }
 
 EventLoopThread::~EventLoopThread() {
     exiting_ = true;
     if (loop_) {
         loop_->quit();
-        if (thread_ && thread_->joinable()) {
-            thread_->join();
-        }
+    }
+    if (thread_ && thread_->joinable()) {
+        thread_->join();
     }
 }
 

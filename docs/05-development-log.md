@@ -182,3 +182,29 @@ CMakeLists.txt（3 个 app target + 6 个 test target）
 ```
 
 总计 50 个代码文件，覆盖 Reactor 全栈。
+
+---
+
+## 2026-06-08
+
+进行第一阶段稳定化修复。
+
+修复内容：
+
+- 修复 `Timer` 构造函数未初始化 `sequence_`、缺少 `<atomic>` 等编译级问题。
+- 补齐核心 `.cpp` 文件的显式头文件依赖，减少依赖间接 include 的风险。
+- 将 `TcpConnection` 的读路径改为 `Buffer::readFd()`，消息回调改为 `MessageCallback(conn, Buffer*, Timestamp)`。
+- 为 `TcpConnection` 增加 `outputBuffer_`，处理非阻塞写中的部分写和 `EAGAIN`。
+- 修复 `HttpServer` 绕过 `HttpContext` 的临时解析逻辑，改为基于 `HttpContext + Buffer` 的逐行状态机解析。
+- 修复 HTTP header 解析只能处理一行的问题。
+- 修复 `HttpServer::onMessage` 回调绑定参数不完整的问题。
+- 修复 `EpollPoller` 在 `kDeleted + none event` 状态下可能错误重新 `ADD` 空事件 Channel 的问题。
+- 修正 `eventloop_test` 中 `runInLoop` 语义断言错误和写事件测试不可靠的问题。
+- 修正 `tcp_test` 中连接对象生命周期过短的问题。
+
+当前状态：
+
+- Windows 本地仅完成静态检查和代码修复。
+- `git diff --check` 已通过。
+- 仍需在 Linux 环境执行 `bash scripts/build.sh && bash scripts/test.sh` 做最终构建和 CTest 验证。
+- Echo Server 与 WebServer 仍需通过 `nc`、`curl` 和 `wrk` 做运行验证。

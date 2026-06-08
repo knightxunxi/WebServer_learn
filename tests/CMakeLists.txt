@@ -62,6 +62,8 @@ add_executable(csl_tcp_test
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/net/Poller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/net/EpollPoller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/net/EventLoop.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/timer/TimerQueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/net/Buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/base/timestamp.cpp
 )
 target_link_libraries(csl_tcp_test PRIVATE csl_project_options)

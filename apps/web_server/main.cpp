@@ -4,7 +4,7 @@
 // 这是 cpp-server-lab 第一阶段的目标验证应用。
 //
 // 运行方式（Linux）：
-//   ./build/apps/csl_web_server
+//   ./build/csl_web_server
 //   浏览器访问 http://localhost:8080
 
 #include "csl/net/EventLoop.h"
@@ -14,6 +14,7 @@
 #include "csl/http/HttpResponse.h"
 
 #include <iostream>
+#include <string>
 
 int main(int argc, char* argv[]) {
     uint16_t port = 8080;

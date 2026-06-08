@@ -6,6 +6,7 @@
 #include "csl/net/EventLoopThread.h"
 
 #include <cassert>
+#include <cstdio>
 
 namespace csl {
 

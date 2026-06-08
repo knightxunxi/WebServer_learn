@@ -17,6 +17,7 @@ namespace csl {
 
 class HttpRequest;
 class HttpResponse;
+class Buffer;
 
 class HttpServer : noncopyable {
 public:
@@ -37,7 +38,7 @@ public:
 
 private:
     void onConnection(const TcpServer::TcpConnectionPtr& conn);
-    void onMessage(const TcpServer::TcpConnectionPtr& conn, Timestamp);
+    void onMessage(const TcpServer::TcpConnectionPtr& conn, Buffer* buf, Timestamp);
     void onRequest(const TcpServer::TcpConnectionPtr& conn,
                    const HttpRequest& req);
 

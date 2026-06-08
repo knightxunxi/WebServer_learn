@@ -13,9 +13,13 @@
 #include "csl/net/Channel.h"
 
 #include <cassert>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <thread>
+#include <fcntl.h>
 #include <unistd.h>
 
 // ===== 辅助：pipe + Channel 测试对 =====
@@ -113,16 +117,14 @@ int main() {
         csl::EventLoop loop;
         bool called = false;
 
-        // 在 loop 线程中调用 runInLoop
+        // EventLoop 在当前线程构造，runInLoop 会立即执行。
         loop.runInLoop([&called]() { called = true; });
 
-        // 还没启动循环，任务尚未执行
-        assert(!called);
+        assert(called);
 
         loop.runAfter(0.01, [&loop]() { loop.quit(); });
         loop.loop();
 
-        // loop 执行后应已调用
         assert(called);
         std::cout << "[PASS] Test 4: runInLoop 同步执行" << std::endl;
     }
@@ -166,14 +168,8 @@ int main() {
     // ---- Test 7: EventLoop 不允许嵌套 ----
     {
         csl::EventLoop loop;
-        bool nestedLoopStarted = false;
-
-        // 在 loop 线程的回调中尝试创建第二个 EventLoop（应 abort）
-        // 由于这会 abort，这里只验证静态方法能正确返回线程的 EventLoop
         csl::EventLoop* current = csl::EventLoop::getEventLoopOfCurrentThread();
-        // 注意：loop 尚未启动，当前线程不是 IO 线程
-        // getEventLoopOfCurrentThread 返回的是构造时设置的 t_loopInThisThread
-        // 因为 loop 是在 main 线程构造的
+        assert(current == &loop);
 
         loop.runAfter(0.01, [&loop]() { loop.quit(); });
         loop.loop();
@@ -184,19 +180,32 @@ int main() {
     // ---- Test 8: Channel 写事件 ----
     {
         csl::EventLoop loop;
-        PipeChannel pc(&loop);
+        int pipefd[2];
+        if (::pipe(pipefd) != 0) {
+            perror("pipe 创建失败");
+            std::abort();
+        }
+
+        int flags = ::fcntl(pipefd[1], F_GETFL, 0);
+        ::fcntl(pipefd[1], F_SETFL, flags | O_NONBLOCK);
+
+        csl::Channel channel(&loop, pipefd[1]);
         bool writeFired = false;
 
-        pc.channel->setWriteCallback([&writeFired]() {
+        channel.setWriteCallback([&writeFired, &channel, &loop]() {
             writeFired = true;
+            channel.disableWriting();
+            loop.quit();
         });
-        pc.channel->enableWriting();
+        channel.enableWriting();
 
-        // pipe 通常立即可写，所以 write 回调会在下一轮 poll 触发
-        loop.runAfter(0.01, [&loop]() { loop.quit(); });
+        // pipe 写端通常立即可写，写事件触发后在回调中关闭监听并退出。
         loop.loop();
 
         assert(writeFired);
+        channel.remove();
+        ::close(pipefd[0]);
+        ::close(pipefd[1]);
         std::cout << "[PASS] Test 8: Channel 写回调触发" << std::endl;
     }
 

@@ -9,9 +9,34 @@
 #include "csl/net/TcpConnection.h"
 
 #include <algorithm>
+#include <any>
 #include <cstdio>
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <string>
 
 namespace csl {
+
+namespace {
+
+const char kCRLF[] = "\r\n";
+
+const char* findCRLF(const Buffer* buf) {
+    const char* begin = buf->peek();
+    const char* end = begin + buf->readableBytes();
+    const char* crlf = std::search(begin, end, kCRLF, kCRLF + 2);
+    return crlf == end ? nullptr : crlf;
+}
+
+bool shouldCloseConnection(const HttpRequest& req) {
+    std::string connection = req.getHeader("Connection");
+    return connection == "close" ||
+           (req.version() == HttpRequest::kHttp10 &&
+            connection != "Keep-Alive");
+}
+
+}  // namespace
 
 // ===== HttpResponse =====
 
@@ -73,8 +98,7 @@ bool HttpContext::parseRequest(Buffer* buf) {
     bool hasMore = true;
     while (hasMore) {
         if (state_ == kExpectRequestLine) {
-            const char* crlf = static_cast<const char*>(
-                memmem(buf->peek(), buf->readableBytes(), "\r\n", 2));
+            const char* crlf = findCRLF(buf);
             if (crlf) {
                 bool ok = processRequestLine(buf->peek(), crlf);
                 buf->retrieveUntil(crlf + 2);
@@ -87,36 +111,34 @@ bool HttpContext::parseRequest(Buffer* buf) {
                 hasMore = false; // 数据不够，等待更多
             }
         } else if (state_ == kExpectHeaders) {
-            const char* crlf = static_cast<const char*>(
-                memmem(buf->peek(), buf->readableBytes(), "\r\n\r\n", 4));
+            const char* crlf = findCRLF(buf);
             if (crlf) {
-                // 解析每一行头部
                 const char* start = buf->peek();
-                const char* end = crlf;
-                while (start < end) {
-                    const char* colon = static_cast<const char*>(
-                        memchr(start, ':', end - start));
-                    if (colon) {
-                        std::string key(start, colon - start);
-                        const char* valueStart = colon + 1;
-                        // 跳过空格
-                        while (valueStart < end && *valueStart == ' ') {
-                            ++valueStart;
-                        }
-                        std::string value(valueStart, end - valueStart);
-                        request_.addHeader(key, value);
-                    }
-                    start = end + 2; // 跳到下一行
-                    // 查找下一行的 \r\n
-                    if (start < crlf + 4) {
-                        end = static_cast<const char*>(
-                            memmem(start, crlf + 4 - start, "\r\n", 2));
-                    }
+
+                if (crlf == start) {
+                    // 空行表示 header 结束。第一阶段暂不解析 body。
+                    buf->retrieveUntil(crlf + 2);
+                    state_ = kGotAll;
+                    return true;
                 }
 
-                buf->retrieveUntil(crlf + 4);
-                state_ = kGotAll;
-                return true;
+                const char* colon = std::find(start, crlf, ':');
+                if (colon != crlf) {
+                    std::string key(start, colon - start);
+                    const char* valueStart = colon + 1;
+                    while (valueStart < crlf &&
+                           (*valueStart == ' ' || *valueStart == '\t')) {
+                        ++valueStart;
+                    }
+                    const char* valueEnd = crlf;
+                    while (valueEnd > valueStart &&
+                           (*(valueEnd - 1) == ' ' || *(valueEnd - 1) == '\t')) {
+                        --valueEnd;
+                    }
+                    request_.addHeader(key, std::string(valueStart, valueEnd));
+                }
+
+                buf->retrieveUntil(crlf + 2);
             } else {
                 hasMore = false;
             }
@@ -168,6 +190,8 @@ bool HttpContext::processRequestLine(const char* begin, const char* end) {
         request_.setVersion(HttpRequest::kHttp11);
     } else if (verStr == "HTTP/1.0") {
         request_.setVersion(HttpRequest::kHttp10);
+    } else {
+        request_.setVersion(HttpRequest::kUnknown);
     }
 
     return true;
@@ -189,7 +213,9 @@ HttpServer::HttpServer(EventLoop* loop,
         std::bind(&HttpServer::onConnection, this, std::placeholders::_1));
     server_.setMessageCallback(
         std::bind(&HttpServer::onMessage, this,
-                  std::placeholders::_1, std::placeholders::_2));
+                  std::placeholders::_1,
+                  std::placeholders::_2,
+                  std::placeholders::_3));
 }
 
 HttpServer::~HttpServer() = default;
@@ -214,7 +240,10 @@ void HttpServer::onConnection(const TcpServer::TcpConnectionPtr& conn) {
 }
 
 void HttpServer::onMessage(const TcpServer::TcpConnectionPtr& conn,
+                            Buffer* buf,
                             Timestamp receiveTime) {
+    (void)receiveTime;
+
     // 获取或创建 HttpContext
     std::shared_ptr<HttpContext> context;
     try {
@@ -224,40 +253,40 @@ void HttpServer::onMessage(const TcpServer::TcpConnectionPtr& conn,
         conn->setContext(context);
     }
 
-    // 注意：inputBuffer() 中的数据会被 parseRequest consume
-    // 目前 TcpConnection::inputBuffer_ 是 std::string，不支持 consume
-    // 简化方案：直接读取 inputBuffer_ 的全部内容手动解析
-
-    // 临时方案：把 inputBuffer_ 复制到本地 Buffer 解析
-    // 里程后续会整合 Buffer 到 TcpConnection
-
-    if (httpCallback_) {
-        // 构造简单的请求/响应
-        HttpRequest req;
-        HttpResponse resp(false);
-
-        // 简易解析（完整解析需要 HttpContext + Buffer）
-        std::string& raw = conn->inputBuffer();
-        auto space1 = raw.find(' ');
-        auto space2 = raw.find(' ', space1 + 1);
-        if (space1 != std::string::npos && space2 != std::string::npos) {
-            std::string path = raw.substr(space1 + 1, space2 - space1 - 1);
-            auto qpos = path.find('?');
-            if (qpos != std::string::npos) {
-                req.setPath(path.substr(0, qpos));
-                req.setQuery(path.substr(qpos + 1));
-            } else {
-                req.setPath(path);
-            }
-            req.setMethod(HttpRequest::kGet);
-            req.setVersion(HttpRequest::kHttp11);
+    while (buf->readableBytes() > 0) {
+        if (!context->parseRequest(buf)) {
+            break; // 数据不完整，等待下一次读事件
         }
 
-        httpCallback_(req, &resp);
+        onRequest(conn, context->request());
+        context->reset();
+    }
+}
 
-        Buffer buf;
-        resp.appendToBuffer(&buf);
-        conn->send(buf.peek(), buf.readableBytes());
+void HttpServer::onRequest(const TcpServer::TcpConnectionPtr& conn,
+                           const HttpRequest& req) {
+    const bool close = shouldCloseConnection(req);
+    HttpResponse resp(close);
+
+    if (req.method() == HttpRequest::kInvalid ||
+        req.version() == HttpRequest::kUnknown) {
+        resp.setStatusCode(HttpResponse::k400BadRequest);
+        resp.setStatusMessage("Bad Request");
+        resp.setCloseConnection(true);
+        resp.setBody("<h1>400 Bad Request</h1>");
+    } else if (httpCallback_) {
+        httpCallback_(req, &resp);
+    } else {
+        resp.setStatusCode(HttpResponse::k404NotFound);
+        resp.setStatusMessage("Not Found");
+        resp.setBody("<h1>404 Not Found</h1>");
+    }
+
+    Buffer output;
+    resp.appendToBuffer(&output);
+    conn->send(output.peek(), output.readableBytes());
+
+    if (resp.closeConnection()) {
         conn->shutdown();
     }
 }

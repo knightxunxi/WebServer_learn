@@ -31,6 +31,7 @@ public:
     void setStatusCode(HttpStatusCode code) { statusCode_ = code; }
     void setStatusMessage(const std::string& msg) { statusMessage_ = msg; }
     void setCloseConnection(bool on) { closeConnection_ = on; }
+    bool closeConnection() const { return closeConnection_; }
     void setBody(const std::string& body);
     void addHeader(const std::string& key, const std::string& value);
     void setContentType(const std::string& type);

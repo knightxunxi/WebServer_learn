@@ -17,6 +17,7 @@
 
 #include "csl/base/noncopyable.h"
 #include "csl/net/InetAddress.h"
+#include "csl/net/Buffer.h"
 #include "csl/base/timestamp.h"
 
 #include <any>
@@ -29,7 +30,6 @@ namespace csl {
 class EventLoop;
 class Socket;
 class Channel;
-class Buffer;
 
 /// @brief TCP 连接
 ///
@@ -42,7 +42,7 @@ class TcpConnection
 public:
     // ---- 回调类型 ----
     using ConnectionCallback = std::function<void(const std::shared_ptr<TcpConnection>&)>;
-    using MessageCallback    = std::function<void(const std::shared_ptr<TcpConnection>&, Timestamp)>;
+    using MessageCallback    = std::function<void(const std::shared_ptr<TcpConnection>&, Buffer*, Timestamp)>;
     using WriteCompleteCallback = std::function<void(const std::shared_ptr<TcpConnection>&)>;
     using CloseCallback      = std::function<void(const std::shared_ptr<TcpConnection>&)>;
 
@@ -81,8 +81,8 @@ public:
     void send(const std::string& message);
     void send(const void* data, size_t len);
 
-    /// @brief 获取输入缓冲（handleRead 后可用，里程 #6 替换为 Buffer）
-    std::string& inputBuffer() { return inputBuffer_; }
+    /// @brief 获取输入缓冲，仅用于少量测试或调试；业务回调优先使用 MessageCallback 参数
+    Buffer* inputBuffer() { return &inputBuffer_; }
 
     /// @brief 关闭连接（线程安全）
     void shutdown();
@@ -123,8 +123,8 @@ private:
 
     std::any context_;
 
-    // 临时输入缓冲（里程 #6 替换为 Buffer）
-    std::string inputBuffer_;
+    Buffer inputBuffer_;
+    Buffer outputBuffer_;
 };
 
 }  // namespace csl

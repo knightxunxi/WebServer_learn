@@ -4,13 +4,14 @@
 // 这是 cpp-server-lab 第一个可运行的网络应用程序。
 //
 // 运行方式（Linux）：
-//   ./build/apps/csl_echo_server
+//   ./build/csl_echo_server
 //   或 nc localhost 9999 连接测试
 
 #include "csl/net/EventLoop.h"
 #include "csl/net/TcpServer.h"
 #include "csl/net/TcpConnection.h"
 #include "csl/net/InetAddress.h"
+#include "csl/net/Buffer.h"
 #include "csl/base/timestamp.h"
 
 #include <iostream>
@@ -36,8 +37,10 @@ int main(int argc, char* argv[]) {
     // 消息回调：原样返回
     server.setMessageCallback(
         [](const csl::TcpServer::TcpConnectionPtr& conn,
+           csl::Buffer* buf,
            csl::Timestamp receiveTime) {
-            std::string msg = conn->inputBuffer();
+            (void)receiveTime;
+            std::string msg = buf->retrieveAllAsString();
             conn->send(msg);
         });
 

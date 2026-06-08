@@ -8,8 +8,12 @@
 #include "csl/net/Acceptor.h"
 #include "csl/net/TcpConnection.h"
 #include "csl/net/EventLoop.h"
+#include "csl/net/Buffer.h"
 
 #include <cassert>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <thread>
@@ -66,30 +70,33 @@ static void testAcceptorAndTcpConnection() {
     bool newConnReceived = false;
     bool messageReceived = false;
     std::string receivedData;
+    std::shared_ptr<csl::TcpConnection> serverConn;
 
     acceptor.setNewConnectionCallback(
         [&](int sockfd, const csl::InetAddress& peerAddr) {
             newConnReceived = true;
-            auto conn = std::make_shared<csl::TcpConnection>(
+            serverConn = std::make_shared<csl::TcpConnection>(
                 &loop, "test-conn", sockfd,
                 listenAddr, peerAddr);
 
-            conn->setMessageCallback(
+            serverConn->setMessageCallback(
                 [&](const std::shared_ptr<csl::TcpConnection>& c,
+                    csl::Buffer* buf,
                     csl::Timestamp) {
+                    (void)c;
                     messageReceived = true;
-                    receivedData = c->inputBuffer();
+                    receivedData = buf->retrieveAllAsString();
                     loop.quit();
                 });
 
-            conn->setConnectionCallback(
+            serverConn->setConnectionCallback(
                 [&](const std::shared_ptr<csl::TcpConnection>& c) {
                     if (c->connected()) {
                         // 连接建立
                     }
                 });
 
-            conn->connectEstablished();
+            serverConn->connectEstablished();
         });
 
     acceptor.listen();
@@ -130,6 +137,11 @@ static void testAcceptorAndTcpConnection() {
     assert(messageReceived);
     assert(receivedData == "Hello, Server!");
 
+    if (serverConn) {
+        serverConn->connectDestroyed();
+        serverConn.reset();
+    }
+
     std::cout << "[PASS] Test 3: Acceptor + TcpConnection" << std::endl;
 }
 
@@ -149,8 +161,9 @@ static void testTcpSend() {
 
             serverConn->setMessageCallback(
                 [&](const std::shared_ptr<csl::TcpConnection>& conn,
+                    csl::Buffer* buf,
                     csl::Timestamp) {
-                    std::string data = conn->inputBuffer();
+                    std::string data = buf->retrieveAllAsString();
                     conn->send(data);  // echo 回去
                 });
 
@@ -187,6 +200,11 @@ static void testTcpSend() {
 
     loop.loop();
     client.join();
+
+    if (serverConn) {
+        serverConn->connectDestroyed();
+        serverConn.reset();
+    }
 
     std::cout << "[PASS] Test 4: TcpConnection echo" << std::endl;
 }

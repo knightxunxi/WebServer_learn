@@ -45,6 +45,7 @@ add_executable(csl_echo_server
     src/net/EventLoop.cpp
     src/net/EventLoopThread.cpp
     src/net/EventLoopThreadPool.cpp
+    src/net/Buffer.cpp
     src/timer/TimerQueue.cpp
     src/base/timestamp.cpp
 )

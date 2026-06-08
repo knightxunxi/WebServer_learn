@@ -3,6 +3,7 @@
 
 #include "csl/net/InetAddress.h"
 
+#include <cstdio>
 #include <cstring>
 #include <arpa/inet.h>
 

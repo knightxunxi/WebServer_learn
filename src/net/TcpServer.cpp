@@ -8,6 +8,8 @@
 #include "csl/net/TcpConnection.h"
 
 #include <cassert>
+#include <cstdio>
+#include <functional>
 
 namespace csl {
 

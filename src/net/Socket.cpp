@@ -4,6 +4,8 @@
 #include "csl/net/Socket.h"
 #include "csl/net/InetAddress.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
 #include <netinet/in.h>

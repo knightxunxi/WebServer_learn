@@ -7,7 +7,9 @@
 
 #include "csl/base/timestamp.h"
 
+#include <atomic>
 #include <functional>
+#include <utility>
 
 namespace csl {
 
@@ -20,6 +22,7 @@ public:
         , expiration_(when)
         , interval_(interval)
         , repeat_(interval > 0.0)
+        , sequence_(s_numCreated_.fetch_add(1) + 1)
     {
     }
 
@@ -32,7 +35,7 @@ public:
     // 如果可重复，计算下次超时时间
     void restart(Timestamp now);
 
-    static int64_t numCreated() { return s_numCreated_; }
+    static int64_t numCreated() { return s_numCreated_.load(); }
 
 private:
     const TimerCallback callback_;

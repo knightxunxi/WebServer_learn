@@ -11,6 +11,7 @@
 #pragma once
 
 #include "csl/base/noncopyable.h"
+#include "csl/base/timestamp.h"
 #include "csl/net/InetAddress.h"
 
 #include <atomic>
@@ -24,6 +25,7 @@ namespace csl {
 class EventLoop;
 class EventLoopThreadPool;
 class Acceptor;
+class Buffer;
 class TcpConnection;
 
 /// @brief TCP 服务器
@@ -31,7 +33,7 @@ class TcpServer : noncopyable {
 public:
     using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
     using ConnectionCallback  = std::function<void(const TcpConnectionPtr&)>;
-    using MessageCallback     = std::function<void(const TcpConnectionPtr&, Timestamp)>;
+    using MessageCallback     = std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp)>;
     using WriteCompleteCallback = std::function<void(const TcpConnectionPtr&)>;
     using ThreadInitCallback = std::function<void(EventLoop*)>;
 
