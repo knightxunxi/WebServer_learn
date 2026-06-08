@@ -23,6 +23,7 @@ namespace csl {
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusePort)
     : loop_(loop)
+    , listenAddr_(listenAddr)
     , acceptSocket_(::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP))
     , acceptChannel_(loop, acceptSocket_.fd())
     , listening_(false)

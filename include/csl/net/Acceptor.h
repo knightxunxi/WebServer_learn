@@ -13,13 +13,13 @@
 #include "csl/base/noncopyable.h"
 #include "csl/net/Socket.h"
 #include "csl/net/Channel.h"
+#include "csl/net/InetAddress.h"
 
 #include <functional>
 
 namespace csl {
 
 class EventLoop;
-class InetAddress;
 
 /// @brief 连接接受器
 ///
@@ -45,6 +45,7 @@ private:
     void handleRead();  // acceptChannel_ 的读回调
 
     EventLoop* loop_;
+    InetAddress listenAddr_;
     Socket acceptSocket_;
     Channel acceptChannel_;
     NewConnectionCallback newConnectionCallback_;
