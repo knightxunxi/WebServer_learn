@@ -31,7 +31,7 @@ Ubuntu 示例：
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential cmake git
+sudo apt install -y build-essential cmake git libboost-all-dev
 ```
 
 可选工具：
@@ -45,6 +45,14 @@ sudo apt install -y gdb valgrind wrk apache2-utils linux-tools-common
 ```bash
 bash scripts/build.sh
 bash scripts/test.sh
+```
+
+如需在 Linux 中验证旧 epoll 实现测试：
+
+```bash
+cmake -S . -B build-epoll -DCMAKE_BUILD_TYPE=Debug -DCSL_BUILD_TESTS=ON -DCSL_BUILD_LEGACY_EPOLL=ON
+cmake --build build-epoll -j"$(nproc)"
+ctest --test-dir build-epoll --output-on-failure
 ```
 
 ## 建议分支流程
@@ -69,4 +77,3 @@ net: 添加 event loop
 test: 添加 buffer 测试
 bench: 记录 webserver wrk 压测结果
 ```
-

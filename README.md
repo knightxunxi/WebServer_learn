@@ -1,26 +1,31 @@
 # C++ Server Lab
 
-`cpp-server-lab` 是一个面向 C++ 服务端能力建设的学习型仓库。第一阶段以 muduo 风格的 Reactor 架构为参考，实现一个简化版网络库，并在其上开发 HTTP WebServer。
+`cpp-server-lab` 是一个面向 C++ 服务端能力建设的学习型仓库。当前主线切换为 **Boost.Asio 跨平台异步网络服务**，用于在 Windows 和 Linux 上统一构建、运行 Echo Server 与 HTTP WebServer。
+
+历史 Linux epoll / muduo 风格 Reactor 实现已保留在 `src_epoll/`，作为网络底层原理学习、接口设计对照和后续复盘材料。
 
 这个仓库不是为了堆项目数量，而是按照接近企业开发的流程，把需求分析、技术选型、架构设计、模块实现、测试、压测、问题记录和阶段复盘都沉淀下来，方便后续回顾和 GitHub 展示。
 
 ## 学习目标
 
-- 从需求到复盘，完整走一遍 Linux C++ 服务端开发流程。
-- 理解 Reactor、epoll、非阻塞 IO、连接生命周期、定时器和 one loop per thread。
+- 从需求到复盘，完整走一遍 C++ 服务端开发流程。
+- 使用 Boost.Asio 实现跨平台异步 TCP/HTTP 服务。
+- 理解 Reactor、非阻塞 IO、连接生命周期、多线程 `io_context` 和回调式异步模型。
+- 保留 Linux epoll 实现，用于对照学习底层事件驱动模型。
 - 持续记录技术决策、问题定位、测试计划和压测结果。
-- 保证项目可以上传 GitHub，并能在 Linux 虚拟机中 clone、构建、运行。
+- 保证项目可以上传 GitHub，并能在 Windows/Linux 中 clone、构建、运行。
 
 ## 当前阶段
 
-第一阶段：`MiniMuduo + WebServer`
+第一阶段主线：`Boost.Asio + WebServer`
 
 - 语言标准：C++20
-- 平台定位：Linux 优先
-- IO 模型：epoll + 非阻塞 fd
-- 触发模式：默认 LT，预留 ET 配置扩展
-- 并发模型：one loop per thread
-- 核心风格：callback-style Reactor
+- 平台定位：Windows/Linux
+- IO 模型：Boost.Asio
+- 并发模型：多线程 `io_context`
+- 核心风格：callback-style async IO
+- 当前应用：TCP Echo Server、HTTP WebServer
+- 旧实现：`src_epoll/` 中保留 Linux epoll 版本
 - 协程定位：后续实验模块，不进入第一阶段主路径
 
 ## 仓库结构
@@ -35,21 +40,63 @@
 ├── docs/                         # 需求、设计、日志、测试、复盘文档
 ├── experiments/                  # 实验模块，例如协程版本 API
 ├── include/csl/                  # 对外头文件
+│   ├── asio/                     # Boost.Asio 主线接口
 │   ├── base/
 │   ├── http/
 │   ├── net/
 │   └── timer/
 ├── scripts/                      # 构建、测试、压测辅助脚本
-├── src/                          # 具体实现
+├── src/                          # 当前主线实现
+│   └── asio/
+├── src_epoll/                    # 旧 Linux epoll / MiniMuduo 实现
 └── tests/                        # 单元测试和集成测试
 ```
 
 ## Linux 构建
 
+依赖：
+
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake git libboost-all-dev
+```
+
+构建：
+
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCSL_BUILD_TESTS=ON
 cmake --build build -j"$(nproc)"
 ctest --test-dir build --output-on-failure
+```
+
+运行：
+
+```bash
+./build/csl_echo_server 9999 2
+./build/csl_web_server 8080 2
+```
+
+## Windows 构建
+
+需要安装：
+
+- CMake
+- Visual Studio 2022 或其他 C++20 编译器
+- Boost（可通过 vcpkg、MSYS2 或手动安装）
+
+vcpkg 示例：
+
+```powershell
+cmake -S . -B build -DCSL_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+cmake --build build --config Debug
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+运行：
+
+```powershell
+.\build\Debug\csl_echo_server.exe 9999 2
+.\build\Debug\csl_web_server.exe 8080 2
 ```
 
 也可以使用脚本：
@@ -73,6 +120,7 @@ bash scripts/test.sh
 - [测试方案](docs/09-testing.md)
 - [GitHub 与 Linux 工作流](docs/10-github-linux-workflow.md)
 - [编码与文档规范](docs/11-style-guide.md)
+- [Boost.Asio 主线切换记录](docs/14-boost-asio-transition.md)
 
 ## 开发流程
 
@@ -86,4 +134,3 @@ bash scripts/test.sh
 ## 注释原则
 
 后续必要代码注释统一使用中文。注释只解释不明显的设计意图、生命周期约束、并发边界和关键坑点，不为显而易见的代码写空泛注释。
-

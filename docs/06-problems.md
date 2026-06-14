@@ -35,6 +35,23 @@
 如何预防：
 涉及 `const` 成员和静态计数器时，优先补单元测试或至少进行 Linux 编译验证。
 
+## 2026-06-14：Windows 控制台中文输出乱码
+
+背景：
+项目主线切换到 Boost.Asio 后，在 Windows CMD 中运行 `csl_web_server.exe`。
+
+现象：
+控制台输出出现 `鐩戝惉绔彛`、`璇锋眰` 等乱码。
+
+原因：
+源码和程序输出使用 UTF-8 字节，但 Windows CMD 默认代码页可能是 GBK/936，控制台按错误编码解释中文。
+
+修复：
+新增 `csl/platform/console.h`，在 Windows 下调用 `SetConsoleOutputCP(CP_UTF8)` 和 `SetConsoleCP(CP_UTF8)`；同时 MinGW 构建显式增加 `-finput-charset=UTF-8` 与 `-fexec-charset=UTF-8`。
+
+如何预防：
+Windows 命令行程序如果需要输出中文，应同时控制源码编码、执行字符集和控制台代码页。临时方案可以在运行前执行 `chcp 65001`。
+
 ## 2026-06-08：TcpConnection 未真正接入 Buffer
 
 背景：

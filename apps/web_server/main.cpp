@@ -1,46 +1,48 @@
-// web_server — HTTP WebServer
+// web_server — Boost.Asio HTTP WebServer
 //
 // 监听端口 8080，返回简单的 HTML 页面。
-// 这是 cpp-server-lab 第一阶段的目标验证应用。
 //
-// 运行方式（Linux）：
+// 运行方式：
 //   ./build/csl_web_server
 //   浏览器访问 http://localhost:8080
 
-#include "csl/net/EventLoop.h"
-#include "csl/net/InetAddress.h"
-#include "csl/http/HttpServer.h"
-#include "csl/http/HttpRequest.h"
-#include "csl/http/HttpResponse.h"
+#include "csl/asio/http_server.h"
+#include "csl/platform/console.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <string>
 
 int main(int argc, char* argv[]) {
+    csl::platform::configureConsoleUtf8();
+
     uint16_t port = 8080;
     if (argc > 1) {
         port = static_cast<uint16_t>(std::stoi(argv[1]));
     }
 
+    std::size_t threadCount = 2;
+    if (argc > 2) {
+        threadCount = static_cast<std::size_t>(std::stoul(argv[2]));
+    }
+
     std::cout << "=== csl HTTP WebServer ===" << std::endl;
     std::cout << "监听端口: " << port << std::endl;
+    std::cout << "IO线程数: " << threadCount << std::endl;
     std::cout << "测试: curl http://localhost:" << port << "/" << std::endl;
 
-    csl::EventLoop loop;
-    csl::InetAddress listenAddr(port);
-    csl::HttpServer server(&loop, listenAddr, "WebServer");
+    csl::asio::HttpServer server(port, threadCount);
 
-    server.setThreadNum(2);
+    server.setRequestHandler(
+        [](const csl::asio::HttpRequest& req, csl::asio::HttpResponse* resp) {
+            std::cout << "请求: " << req.path << std::endl;
 
-    server.setHttpCallback(
-        [](const csl::HttpRequest& req, csl::HttpResponse* resp) {
-            std::cout << "请求: " << req.path() << std::endl;
-
-            if (req.path() == "/" || req.path() == "/index.html") {
-                resp->setStatusCode(csl::HttpResponse::k200Ok);
-                resp->setStatusMessage("OK");
-                resp->setContentType("text/html; charset=utf-8");
-                resp->setBody(
+            if (req.path == "/" || req.path == "/index.html") {
+                resp->statusCode = 200;
+                resp->statusMessage = "OK";
+                resp->contentType = "text/html; charset=utf-8";
+                resp->body =
                     "<!DOCTYPE html>\n"
                     "<html lang=\"zh-CN\">\n"
                     "<head>\n"
@@ -55,23 +57,21 @@ int main(int argc, char* argv[]) {
                     "<body>\n"
                     "  <h1>cpp-server-lab WebServer</h1>\n"
                     "  <div class=\"info\">\n"
-                    "    <p>C++20 Reactor 网络库</p>\n"
-                    "    <p>muduo 风格 · epoll LT · one loop per thread</p>\n"
+                    "    <p>C++20 Boost.Asio 异步网络服务</p>\n"
+                    "    <p>跨平台 IO · 回调式异步 · 多线程 io_context</p>\n"
                     "  </div>\n"
-                    "  <p>第一阶段：MiniMuduo + WebServer ✅</p>\n"
+                    "  <p>当前主线：Boost.Asio 跨平台网络实现</p>\n"
                     "</body>\n"
-                    "</html>");
+                    "</html>";
             } else {
-                resp->setStatusCode(csl::HttpResponse::k404NotFound);
-                resp->setStatusMessage("Not Found");
-                resp->setBody("<h1>404 Not Found</h1>");
+                resp->statusCode = 404;
+                resp->statusMessage = "Not Found";
+                resp->body = "<h1>404 Not Found</h1>";
             }
         });
 
-    server.start();
-
     std::cout << "WebServer 已启动，按 Ctrl+C 退出" << std::endl;
-    loop.loop();
+    server.run();
 
     return 0;
 }

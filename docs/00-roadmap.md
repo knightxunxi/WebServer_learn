@@ -2,33 +2,34 @@
 
 本仓库作为长期 C++ 服务端学习项目维护。每个阶段都应包含需求分析、架构设计、代码实现、测试验证、压测记录和阶段复盘。
 
-## 第一阶段：MiniMuduo + WebServer
+## 第一阶段：Boost.Asio + WebServer
 
-目标：实现一个 muduo 风格的简化版 Reactor 网络库，并基于它开发 HTTP WebServer。
+目标：基于 Boost.Asio 实现跨平台异步 TCP/HTTP 服务，并完成需求分析、架构设计、测试验证和阶段复盘。
+
+历史说明：此前已完成一个 Linux epoll / muduo 风格的简化版 Reactor 网络库，源码保留在 `src_epoll/`，用于底层原理复习和与 Boost.Asio 主线做对照。
 
 核心内容：
 
-- Linux 非阻塞网络编程
-- epoll 默认 LT，后续支持 ET 配置切换
-- Reactor 与 one loop per thread
-- Channel、Poller、EventLoop、Acceptor、TcpConnection、TcpServer
-- Buffer 与连接生命周期管理
-- TimerQueue 与超时处理
+- Boost.Asio 异步 TCP 编程
+- `io_context`、`tcp::acceptor`、`tcp::socket`
+- `async_accept`、`async_read_some`、`async_read_until`、`async_write`
+- session 生命周期管理
+- 多线程 `io_context`
 - HTTP 请求解析和静态响应
+- Keep-Alive 基础支持
 - CMake、测试、压测、Sanitizer 和阶段复盘
 
 里程碑：
 
 1. 项目基线：CMake、文档、脚本、Git。
-2. 基础工具：noncopyable、Timestamp、Logger。
-3. 事件循环基线：EventLoop、Channel、Poller、EpollPoller。
-4. TCP 基线：Socket、InetAddress、Acceptor、TcpConnection。
-5. Echo Server：先完成单线程可运行版本。
-6. Buffer 与写路径：处理半包、粘包和部分写。
-7. 多线程 Reactor：EventLoopThread 与 EventLoopThreadPool。
-8. TimerQueue：支持超时和定时任务。
-9. HTTP Server：解析请求并返回响应。
-10. 测试、压测、复盘和 README 完善。
+2. 技术切换：旧 epoll 源码移动到 `src_epoll/`，新建 Boost.Asio 主线。
+3. Echo Server：完成异步 TCP 回显服务。
+4. HTTP Server：完成请求行、Header 解析和响应序列化。
+5. 多线程运行：通过线程数参数控制 `io_context` 工作线程。
+6. 测试补齐：CTest、手动 curl/nc、Windows/Linux 构建验证。
+7. HTTP 完善：静态文件、错误页、超时策略。
+8. 压测与调优：wrk/ab、连接数、吞吐和延迟记录。
+9. 阶段复盘：总结 Boost.Asio 与手写 epoll 的差异。
 
 ## 第二阶段：WebSocket 长连接服务器
 
@@ -88,4 +89,3 @@
 - lock-free 队列评估
 - Boost.Asio 跨平台原型
 - Seastar 阅读笔记
-

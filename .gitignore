@@ -1,5 +1,6 @@
 # Build outputs
 build/
+build-*/
 cmake-build-*/
 out/
 bin/
@@ -36,4 +37,3 @@ benchmarks/**/*.csv
 *.swo
 .DS_Store
 Thumbs.db
-

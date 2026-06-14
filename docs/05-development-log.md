@@ -1,5 +1,32 @@
 # 开发日志
 
+## 2026-06-14
+
+切换项目主线为 Boost.Asio 跨平台实现。
+
+调整原因：
+
+- 希望后续在 Windows 本地开发、调试和演示更方便。
+- 保留 C++ 服务端异步 IO、连接生命周期、协议解析和工程流程训练目标。
+- 旧 Linux epoll 实现已经完成第一阶段学习价值，后续作为底层原理对照材料保留。
+
+已完成：
+
+- 将原 `src/` 重命名为 `src_epoll/`。
+- 新建 `src/asio/` 作为当前主线实现目录。
+- 新增 `include/csl/asio/echo_server.h` 与 `include/csl/asio/http_server.h`。
+- 新增 Boost.Asio 版 Echo Server 与 HTTP WebServer。
+- 更新 `apps/echo_server/main.cpp` 与 `apps/web_server/main.cpp`，默认使用 Boost.Asio 主线。
+- 更新顶层 CMake，新增 `csl_asio_server` 公共库。
+- 默认测试切换为跨平台 smoke + Asio HTTP 响应序列化测试。
+- 旧 epoll 测试改为 `CSL_BUILD_LEGACY_EPOLL=ON` 且非 Windows 时启用。
+
+当前状态：
+
+- 当前主线目标：Windows/Linux 均可构建运行。
+- 旧 epoll 源码仍保留，可继续用于 Linux 原理复习。
+- 后续需要继续补充 HTTP 静态文件、超时策略、手动测试记录和压测记录。
+
 ## 2026-05-31
 
 初始化仓库规划和工程骨架。
