@@ -32,19 +32,21 @@ include/csl/timer/   旧定时器模块头文件
 当前 Boost.Asio 主线包含：
 
 - `EchoServer`：异步 TCP 回显服务器。
-- `HttpServer`：基础 HTTP/1.1 服务器。
-- `HttpRequest`：请求行与基础头部解析结果。
-- `HttpResponse`：响应状态、内容类型、响应体和连接关闭策略。
+- `HttpServer`：HTTP/1.1 服务器，支持配置启动、Keep-Alive、超时和 body 读取。
+- `HttpRequest`：请求行、query、headers、body、Content-Length、Content-Type 解析结果。
+- `HttpResponse`：响应状态、headers、内容类型、响应体和连接关闭策略。
+- `Router`：配置驱动的静态文件和内置 API 路由。
+- `server_config`：INI 风格配置加载。
+- `logger`：轻量跨平台日志。
 - `serializeResponse()`：HTTP 响应序列化函数。
 
 当前暂不包含：
 
-- 完整 HTTP body 解析。
-- 静态文件服务。
-- 路由器。
 - TLS。
 - WebSocket。
 - 协程 API。
+- multipart 文件上传。
+- HTTP/2。
 
 ## 构建策略
 
@@ -63,6 +65,9 @@ ctest --test-dir build --output-on-failure
 - `csl_web_server`
 - `csl_smoke_test`
 - `csl_asio_http_response_test`
+- `csl_asio_server_config_test`
+- `csl_asio_http_parser_test`
+- `csl_asio_router_test`
 
 旧 epoll 测试：
 
@@ -78,10 +83,9 @@ ctest --test-dir build-epoll --output-on-failure
 
 短期任务：
 
-- 补充 HTTP 静态文件响应。
-- 增加连接超时策略。
-- 增加更多 Asio 单元测试和手动测试记录。
+- 增加更多真实网络集成测试。
 - 在 Windows 与 Linux 各完成一次构建验证。
+- 记录 wrk/ab 基础压测结果。
 
 中期任务：
 

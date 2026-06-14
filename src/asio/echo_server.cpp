@@ -12,16 +12,23 @@ namespace csl::asio {
 
 using boost::asio::ip::tcp;
 
+// 单个 TCP 连接的会话对象。
+//
+// Session 通过 shared_from_this() 延长自身生命周期，确保异步读写回调执行期间对象不被销毁。
 class EchoServer::Session : public std::enable_shared_from_this<Session> {
 public:
     explicit Session(tcp::socket socket)
         : socket_(std::move(socket)) {}
 
+    // 启动当前连接的异步读循环。
     void start() {
         doRead();
     }
 
 private:
+    // 等待客户端发送数据。
+    //
+    // async_read_some 可能只读到部分数据；Echo 协议不关心消息边界，读到多少就回写多少。
     void doRead() {
         auto self = shared_from_this();
         socket_.async_read_some(
@@ -33,6 +40,9 @@ private:
             });
     }
 
+    // 将本次读到的数据原样写回客户端。
+    //
+    // 写完成后继续读下一批数据，形成“读 -> 写 -> 读”的连接处理循环。
     void doWrite(std::size_t length) {
         auto self = shared_from_this();
         boost::asio::async_write(

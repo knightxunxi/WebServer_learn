@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cpp-server-lab WebServer</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">C++20 · Boost.Asio · WebServer</p>
+      <h1>cpp-server-lab WebServer</h1>
+      <p class="summary">一个用于学习 C++ 服务端工程化流程的跨平台 HTTP 服务。</p>
+    </section>
+
+    <section class="grid" aria-label="server features">
+      <article>
+        <h2>HTTP 能力</h2>
+        <p>支持 GET、HEAD、POST，请求头解析、基础 body 读取和 Keep-Alive。</p>
+      </article>
+      <article>
+        <h2>静态资源</h2>
+        <p>当前页面由 public 目录返回，包含 MIME 识别和目录穿越防护。</p>
+      </article>
+      <article>
+        <h2>工程流程</h2>
+        <p>配置、日志、测试、文档和压测记录会随开发过程持续补齐。</p>
+      </article>
+    </section>
+
+    <section class="status">
+      <h2>接口验证</h2>
+      <pre>curl http://localhost:8080/api/status</pre>
+      <pre>curl -X POST http://localhost:8080/api/echo -H "Content-Type: application/json" -d "{\"msg\":\"hello\"}"</pre>
+      <p><a class="link" href="/gallery.html">打开静态图片资源测试页</a></p>
+    </section>
+  </main>
+</body>
+</html>

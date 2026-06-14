@@ -15,6 +15,10 @@
 
 namespace csl::platform {
 
+// 初始化控制台编码。
+//
+// Windows 下将输入/输出代码页切换为 UTF-8，避免中文日志在 CMD/PowerShell 中乱码。
+// Linux/macOS 下无需处理，该函数为空操作。
 inline void configureConsoleUtf8() {
 #ifdef _WIN32
     // Windows CMD/PowerShell 默认代码页可能不是 UTF-8，直接输出中文会乱码。

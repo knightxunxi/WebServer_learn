@@ -17,6 +17,21 @@ target_link_libraries(csl_asio_http_response_test PRIVATE csl_asio_server)
 
 add_test(NAME csl_asio_http_response_test COMMAND csl_asio_http_response_test)
 
+add_executable(csl_asio_server_config_test asio/server_config_test.cpp)
+target_link_libraries(csl_asio_server_config_test PRIVATE csl_asio_server)
+
+add_test(NAME csl_asio_server_config_test COMMAND csl_asio_server_config_test)
+
+add_executable(csl_asio_http_parser_test asio/http_parser_test.cpp)
+target_link_libraries(csl_asio_http_parser_test PRIVATE csl_asio_server)
+
+add_test(NAME csl_asio_http_parser_test COMMAND csl_asio_http_parser_test)
+
+add_executable(csl_asio_router_test asio/router_test.cpp)
+target_link_libraries(csl_asio_router_test PRIVATE csl_asio_server)
+
+add_test(NAME csl_asio_router_test COMMAND csl_asio_router_test)
+
 if(NOT CSL_BUILD_LEGACY_EPOLL)
     return()
 endif()

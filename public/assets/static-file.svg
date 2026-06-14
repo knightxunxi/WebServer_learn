@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+  <title id="title">静态文件路由示意图</title>
+  <desc id="desc">展示请求路径到 public 目录文件的映射过程。</desc>
+  <rect width="720" height="420" fill="#fbfbfc"/>
+  <rect x="54" y="52" width="612" height="316" rx="14" fill="#ffffff" stroke="#d7dee8"/>
+  <text x="78" y="96" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="700" fill="#1f2937">Static File Route</text>
+  <g font-family="Consolas, monospace" font-size="18">
+    <rect x="88" y="142" width="220" height="62" rx="8" fill="#e0f2fe" stroke="#7dd3fc"/>
+    <text x="112" y="180" fill="#0f172a">GET /gallery.html</text>
+    <rect x="412" y="142" width="220" height="62" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+    <text x="442" y="180" fill="#0f172a">public/gallery.html</text>
+    <rect x="88" y="260" width="220" height="62" rx="8" fill="#fef3c7" stroke="#facc15"/>
+    <text x="111" y="298" fill="#0f172a">/assets/*.svg</text>
+    <rect x="412" y="260" width="220" height="62" rx="8" fill="#fae8ff" stroke="#e879f9"/>
+    <text x="436" y="298" fill="#0f172a">image/svg+xml</text>
+  </g>
+  <g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M308 173 H412"/>
+    <path d="M308 291 H412"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

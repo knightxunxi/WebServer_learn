@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+  <title id="title">Boost.Asio 异步流程示意图</title>
+  <desc id="desc">展示 accept、read、handler 和 write 的异步调用关系。</desc>
+  <rect width="720" height="420" fill="#f7f8fa"/>
+  <rect x="48" y="48" width="624" height="324" rx="14" fill="#ffffff" stroke="#d7dee8"/>
+  <text x="74" y="92" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="700" fill="#1f2937">Boost.Asio Flow</text>
+  <g font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="18" fill="#111827">
+    <rect x="82" y="144" width="130" height="76" rx="8" fill="#dbeafe" stroke="#93c5fd"/>
+    <text x="112" y="189">accept</text>
+    <rect x="296" y="144" width="130" height="76" rx="8" fill="#dcfce7" stroke="#86efac"/>
+    <text x="330" y="189">read</text>
+    <rect x="510" y="144" width="130" height="76" rx="8" fill="#fee2e2" stroke="#fca5a5"/>
+    <text x="536" y="189">handler</text>
+    <rect x="296" y="272" width="130" height="64" rx="8" fill="#fef3c7" stroke="#facc15"/>
+    <text x="326" y="311">write</text>
+  </g>
+  <g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <path d="M212 182 H296"/>
+    <path d="M426 182 H510"/>
+    <path d="M575 220 C575 292 474 304 426 304"/>
+    <path d="M296 304 C198 304 147 260 147 220"/>
+  </g>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

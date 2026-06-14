@@ -6,10 +6,12 @@
 
 单元测试：
 
-- Buffer
-- HTTP parser
-- TimerQueue
-- 如果加入配置解析，也需要测试配置解析
+- server_config：INI 解析、默认值、字段校验。
+- HTTP parser：请求行、header、query、Content-Length、Content-Type、body 限制。
+- Router：静态文件、MIME、目录穿越、内置 API。
+- 图片静态资源：SVG 图片访问、`image/svg+xml` MIME 返回。
+- response serializer：状态行、常见响应头和 body。
+- 旧 epoll 模块测试通过 `CSL_BUILD_LEGACY_EPOLL=ON` 在 Linux 下启用。
 
 集成测试：
 
@@ -26,6 +28,7 @@
 - `nc`
 - `telnet`
 - 浏览器访问静态响应
+- POST `/api/echo`
 
 压测：
 
@@ -44,7 +47,13 @@
 
 ## 当前基线
 
-初始仓库已经通过 CTest 放置了一个 smoke test：
+当前默认 CTest 覆盖：
+
+- `csl_smoke_test`
+- `csl_asio_http_response_test`
+- `csl_asio_server_config_test`
+- `csl_asio_http_parser_test`
+- `csl_asio_router_test`
 
 ```bash
 cmake -S . -B build -DCSL_BUILD_TESTS=ON
@@ -52,10 +61,15 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-## 第一批测试任务
+## 手动验证命令
 
-1. Buffer 实现后补 Buffer 单元测试。
-2. EventLoop 与 Channel 实现后补 EventLoop smoke 集成测试。
-3. 第一个 Echo Server 可运行后补手动测试记录。
-4. HTTP Server 暴露前先补 HTTP parser 单元测试。
-
+```bash
+curl -v http://localhost:8080/
+curl -v http://localhost:8080/gallery.html
+curl -v http://localhost:8080/style.css
+curl -I http://localhost:8080/assets/asio-flow.svg
+curl -v http://localhost:8080/api/status
+curl -v -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -d '{"msg":"hello"}'
+```

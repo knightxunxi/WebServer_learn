@@ -27,6 +27,35 @@
 - 旧 epoll 源码仍保留，可继续用于 Linux 原理复习。
 - 后续需要继续补充 HTTP 静态文件、超时策略、手动测试记录和压测记录。
 
+## 2026-06-14
+
+完成 Boost.Asio WebServer 完整版第一轮实现。
+
+已完成：
+
+- 新增 `config/server.ini`，支持端口、线程数、静态目录、默认首页、日志、header/body 限制和 Keep-Alive 超时配置。
+- 新增 `public/index.html`、`public/style.css`、`public/favicon.ico`，页面改为真实静态文件返回。
+- 拆分 HTTP 主线模块：配置加载、轻量日志、HTTP parser、Router/静态文件、HttpServer 会话流程。
+- `HttpRequest` 支持 method、target、path、query、headers、body、Content-Length、Content-Type、Keep-Alive。
+- `HttpResponse` 支持状态码、header、body、content type 和响应序列化。
+- Session 增加 `steady_timer`，读写过程刷新超时，超时主动关闭连接。
+- Router 支持 `GET/HEAD` 静态文件、`GET /api/status`、`POST /api/echo`。
+- 静态文件处理支持 MIME 识别、URL path 解码和目录穿越防护。
+- 新增单元测试：配置解析、HTTP 解析、Router、响应序列化。
+
+验证结果：
+
+- Windows MinGW + Boost 1.91 下构建通过。
+- CTest 默认 5 个测试全部通过。
+- 本地临时端口真实请求验证通过：`/`、`/style.css`、`/api/status`、`POST /api/echo` 均返回 200。
+
+补充静态图片资源验证：
+
+- 新增 `public/gallery.html`。
+- 新增 `public/assets/asio-flow.svg` 与 `public/assets/static-file.svg`。
+- 首页增加静态图片资源测试页入口。
+- Router 单元测试增加 SVG 静态资源访问和 `image/svg+xml` MIME 校验。
+
 ## 2026-05-31
 
 初始化仓库规划和工程骨架。

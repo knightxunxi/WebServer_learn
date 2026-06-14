@@ -51,7 +51,11 @@ target_link_libraries(csl_smoke PRIVATE csl_project_options)
 # ===== Boost.Asio 服务端公共库 =====
 add_library(csl_asio_server
     src/asio/echo_server.cpp
+    src/asio/http_parser.cpp
     src/asio/http_server.cpp
+    src/asio/logger.cpp
+    src/asio/router.cpp
+    src/asio/server_config.cpp
 )
 target_link_libraries(csl_asio_server
     PUBLIC

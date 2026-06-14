@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>静态图片资源测试</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">Static Assets Test</p>
+      <h1>静态图片资源访问测试</h1>
+      <p class="summary">这个页面用于验证 WebServer 能否从 public/assets 返回图片资源。</p>
+    </section>
+
+    <section class="gallery">
+      <figure>
+        <img src="/assets/asio-flow.svg" alt="Boost.Asio 异步流程示意图">
+        <figcaption>异步 accept/read/write 流程</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/static-file.svg" alt="静态文件路由示意图">
+        <figcaption>静态文件路径解析与 MIME 返回</figcaption>
+      </figure>
+    </section>
+
+    <section class="status">
+      <h2>curl 验证</h2>
+      <pre>curl -I http://localhost:8080/assets/asio-flow.svg</pre>
+      <pre>curl -I http://localhost:8080/assets/static-file.svg</pre>
+    </section>
+  </main>
+</body>
+</html>

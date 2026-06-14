@@ -37,6 +37,7 @@
 │   ├── smoke/
 │   └── web_server/
 ├── benchmarks/                   # 压测脚本和压测结果
+├── config/                       # WebServer 默认配置
 ├── docs/                         # 需求、设计、日志、测试、复盘文档
 ├── experiments/                  # 实验模块，例如协程版本 API
 ├── include/csl/                  # 对外头文件
@@ -45,6 +46,7 @@
 │   ├── http/
 │   ├── net/
 │   └── timer/
+├── public/                       # 静态资源目录
 ├── scripts/                      # 构建、测试、压测辅助脚本
 ├── src/                          # 当前主线实现
 │   └── asio/
@@ -73,7 +75,14 @@ ctest --test-dir build --output-on-failure
 
 ```bash
 ./build/csl_echo_server 9999 2
-./build/csl_web_server 8080 2
+./build/csl_web_server config/server.ini
+```
+
+如果进入构建目录运行：
+
+```bash
+cd build
+./csl_web_server ../config/server.ini
 ```
 
 ## Windows 构建
@@ -96,8 +105,23 @@ ctest --test-dir build -C Debug --output-on-failure
 
 ```powershell
 .\build\Debug\csl_echo_server.exe 9999 2
-.\build\Debug\csl_web_server.exe 8080 2
+.\build\Debug\csl_web_server.exe config\server.ini
 ```
+
+如果进入构建目录运行：
+
+```powershell
+cd build-utf8-check
+.\csl_web_server.exe ..\config\server.ini
+```
+
+WebServer 默认能力：
+
+- 读取 `config/server.ini`。
+- 从 `public/` 返回静态文件。
+- 支持 `GET /`、`GET /style.css`、`GET /api/status`。
+- 支持 `POST /api/echo`，用于验证基础 body 读取。
+- 运行日志输出到 `logs/server.log`。
 
 也可以使用脚本：
 
